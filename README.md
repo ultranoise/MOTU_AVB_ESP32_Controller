@@ -154,7 +154,7 @@ void postDataToServer() {
 
     HTTPClient http;
 
-    http.begin("http://192.168.0.5/datastore/ext/obank/2/ch/0/name");  //curlコマンドと同じURi『http://192.168.0.100/datastore/ext/obank/2/ch/0/name 』
+    http.begin("http://192.168.0.5/datastore/ext/obank/2/ch/0/name");
     
     http.addHeader("Content-Type", "application/json");
     
