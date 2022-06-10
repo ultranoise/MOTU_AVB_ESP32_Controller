@@ -24,7 +24,7 @@ The principle to GET and POST with MOTU AVB interfaces is rather simple with cUR
 
 * The following code can be used to read the datastore:
 
-<code>
+```
 #define ETH_CLK_MODE ETH_CLOCK_GPIO17_OUT
 #define ETH_PHY_POWER 5
 #include <ETH.h>
@@ -144,11 +144,11 @@ void loop()
   }
   delay(10000);
 }
-</code>
+```
 
 * The issues begin when you try to POST messages. The logic of posting with JSON encoding doesn't work. If you typically use the following code you will get an error:
 
-<code>
+```
 
 void postDataToServer() {
 
@@ -170,17 +170,17 @@ void postDataToServer() {
     http.end(); //Close connection
      
 }
-</code>
+```
 
 you get a (-5) or (-1) error:
 
-<code> 
+```
 ETH Connected
 ETH MAC: 8C:4B:14:83:D4:CB, IPv4: 10.0.0.2, FULL_DUPLEX, 100Mbps
  POSTing to Server...
 -5
 
-</code>
+```
  
 So clearly there is a difference in how headers or formatting are set. I used the online service httpbin.org to debug the messages. Basically httpbin.org replies with a copy of what you have sent.  
   
@@ -298,6 +298,6 @@ void postDataToServerTwo() {
 
     http.end();
 }
-</code>
+```
 
 This simple produces a "204" response and moves the fader!
