@@ -23,10 +23,8 @@ The principle to GET and POST with MOTU AVB interfaces is rather simple with cUR
 * set mixer fader 1 and fader 2 at the same time: ``` curl --data 'json={"0/matrix/fader":"0.2","1/matrix/fader":"0.1"}' http://192.168.0.5/datastore/mix/chan/ ```
 
 * The following code can be used to read the datastore:
+
 <code>
-/*
-    This sketch shows the Ethernet event usage
-*/
 #define ETH_CLK_MODE ETH_CLOCK_GPIO17_OUT
 #define ETH_PHY_POWER 5
 #include <ETH.h>
