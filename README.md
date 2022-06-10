@@ -183,7 +183,6 @@ you get a (-5) or (-1) error:
 
 ```
 ETH Connected
-ETH MAC: 8C:4B:14:83:D4:CB, IPv4: 10.0.0.2, FULL_DUPLEX, 100Mbps
  POSTing to Server...
 -5
 
