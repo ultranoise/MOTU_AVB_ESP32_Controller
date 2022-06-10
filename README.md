@@ -154,20 +154,27 @@ void postDataToServer() {
 
     HTTPClient http;
 
-    String jsonData = "{\"value\":\"My favorite channel\"}";
+    http.begin("http://192.168.0.5/datastore/ext/obank/2/ch/0/name");  //curlコマンドと同じURi『http://192.168.0.100/datastore/ext/obank/2/ch/0/name 』
+    
+    http.addHeader("Content-Type", "application/json");
+    
+    int httpResponseCode = http.POST("{\"value\":\"My favorite channel\"}");
+    
+    if (httpResponseCode > 0) {
 
-    http.begin("http://192.168.0.5/datastore/mix/chan/0/matrix/fader"); //Specify request destination
-    http.addHeader("Content-Type", "application/json" , "Content-Length", jsonData.length()); //Specify content-type header
-    
-    USE_SERIAL.println( " POSTing to Server...");
-    
-    int httpCode = http.POST(jsonData); //Send the request
-    String payload = http.getString(); //Get the response payload
-    
-    USE_SERIAL.println(httpCode); //Print HTTP return code
-    USE_SERIAL.println(payload); //Print request response payload
-    
-    http.end(); //Close connection
+      String response = http.getString();
+
+      Serial.println(httpResponseCode);
+      Serial.println(response);
+
+    } else {
+
+      Serial.print("Error on sending PUT Request: ");
+      Serial.println(httpResponseCode);
+
+    }
+
+    http.end();
      
 }
 ```
