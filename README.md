@@ -154,7 +154,7 @@ void postDataToServer() {
 
     HTTPClient http;
 
-    String jsonData = {"/"value"/" :0.5"};
+    String jsonData = "{\"value\":\"My favorite channel\"}";
 
     http.begin("http://192.168.0.5/datastore/mix/chan/0/matrix/fader"); //Specify request destination
     http.addHeader("Content-Type", "application/json" , "Content-Length", jsonData.length()); //Specify content-type header
