@@ -1,8 +1,9 @@
 
-
 #include "SPI.h"
 #include "TFT_eSPI.h"
 #include "Free_Fonts.h" // Include the header file attached to this sketch
+// FreeFonts. Include access to the 48 Adafruit_GFX free fonts FF1 to FF48 and custom fonts
+#define LOAD_GFXFF
 
 #define ETH_CLK_MODE ETH_CLOCK_GPIO17_OUT
 #define ETH_PHY_POWER 5
@@ -255,8 +256,68 @@ float retrieveDevices(String ip_devices)
 }
 
 
-float getFaderValue()
-{
+float getTrimValue() {
+  HTTPClient http;
+
+        //USE_SERIAL.print("[HTTP] begin...\n");
+        // configure traged server and url
+        String path = "http://" + devices_ip[0] + "/datastore/ext/obank/0/ch/0/trim";  //try with the first obank
+        USE_SERIAL.println(path);
+        http.begin(path); 
+        
+
+        //USE_SERIAL.print("[HTTP] GET...\n");
+        // start connection and send HTTP header
+        int httpCode = http.GET();
+
+        // httpCode will be negative on error
+        if(httpCode > 0) {
+            // HTTP header has been send and Server response header has been handled
+            //USE_SERIAL.printf("[HTTP] GET... code: %d\n", httpCode);
+
+            // file found at server
+            if(httpCode == HTTP_CODE_OK) {
+                String payload = http.getString();
+                
+                USE_SERIAL.println("payload");
+                USE_SERIAL.println(payload);
+
+                //fader payload is a String like {"value":0.7}
+                //from where we have to extract the value
+                
+                
+                DynamicJsonDocument doc(200);
+                DeserializationError error =deserializeJson(doc, payload);
+
+                // Test if parsing succeeds.
+                if (error) {
+                  
+                  USE_SERIAL.print(F("deserializeJson() failed: "));
+                  USE_SERIAL.println(error.f_str());
+                  http.end();
+                  return -1.0;
+                } else {
+                  float f = doc["value"];
+                  USE_SERIAL.println("extracted value");
+                  USE_SERIAL.println(f);
+                  http.end();
+                  return f;
+                }
+                
+                
+            }
+        } else {
+            USE_SERIAL.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+            http.end();
+            return -1.0;
+        }
+
+        
+        
+}
+
+
+float getFaderValue() {
   HTTPClient http;
 
         //USE_SERIAL.print("[HTTP] begin...\n");
@@ -416,9 +477,8 @@ void postDataToServerJSONtwo(float vol) {
 
 void postDataToServerJSONmultiple(float vol) {
 
+    //TO ACT ON THE TRIMMS : {"ext/obank/0/ch/0/trim":-18}
     
-    //Serial.println("deserialized doc" );
-    //serializeJson(doc, Serial);  // Generate the minified JSON and send it to the Serial port to debug it
     
     String s;
     serializeJson(doc_mul, s); 
@@ -430,8 +490,8 @@ void postDataToServerJSONmultiple(float vol) {
 
     //various faders?
     // 'json={"0/matrix/fader":"0.2","1/matrix/fader":"0.1"}' http://192.168.0.5/datastore/mix/chan/
-    http.begin("http://" + devices_ip[selected_device] + "/datastore/mix/chan/");  
-    //http.begin("http://192.168.0.101/datastore/mix/chan/"); 
+    http.begin("http://" + devices_ip[selected_device] + "/datastore/");  //root for adding the doc[]
+    
     
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
       
@@ -473,17 +533,25 @@ void setup(void) {
   xpos =  0;
   ypos = 40;
 
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+ // tft.fillScreen(TFT_SKYBLUE); // Clear screen to navy background
+  tft.setTextColor(TFT_GOLD, TFT_NAVY);
 
   tft.setTextDatum(TC_DATUM); // Centre text on x,y position
 
   xpos = tft.width() / 2; // Half the screen width
   ypos = 50;
 
-  tft.setFreeFont(FSB24);
+  //tft.setFreeFont(FSB24);
+  //tft.setTextFont(7);
+
+  tft.fillScreen(TFT_NAVY); // Clear screen to navy background
+  
+  //tft.setTextFont(GLCD); 
+  tft.setFreeFont(FF18);
   tft.drawString("...", xpos, ypos, GFXFF);
   //clear screen 
-  tft.fillScreen(TFT_BLACK);
+  //tft.fillScreen(TFT_BLACK);
+  
 
   ///network
   WiFi.onEvent(WiFiEvent);
@@ -498,16 +566,22 @@ void setup(void) {
   ESP32Encoder::useInternalWeakPullResistors=UP;
   encoder.clearCount(); // set starting count value
   USE_SERIAL.println("Encoder Start = "+String((int32_t)encoder.getCount()));
-  encoder.attachFullQuad(39, 36); //set precision of four values per step
+  //encoder.attachFullQuad(39, 36); //set precision of four values per step
+  encoder.attachHalfQuad(39, 36); //set precision of four values per step
+  
 
   firstConnection = true;
   encoderValue_past = encoderValue;  
 
-  tft.fillScreen(TFT_BLACK);
-  tft.setFreeFont(FSB24);
-  tft.drawString("AVB controller", xpos, ypos, GFXFF);              
-
-  delay(1000);
+  //tft.fillScreen(TFT_BLACK);
+  //tft.setFreeFont(FSB24);
+  //tft.setTextSize(3); 
+  tft.setFreeFont(FF20);
+  tft.drawString("Ottosonics", xpos, ypos, GFXFF);
+  
+  tft.drawString("AVB Controller", xpos, ypos + 100, GFXFF);              
+  
+  delay(5000);
   //wait for connection
   while(eth_connected == false){
     delay(1000);
@@ -527,8 +601,8 @@ void setup(void) {
         }
         //show other possibilities to the user
         //clear screen 
-        tft.fillScreen(TFT_BLACK);
-        tft.setFreeFont(FSB24);
+        tft.fillScreen(TFT_NAVY);
+        //tft.setFreeFont(FSB24);
         tft.drawString("No devices found", xpos, ypos, GFXFF);
         tft.drawString("choose another IP", xpos, ypos + 20, GFXFF);
        }
@@ -547,28 +621,33 @@ void loop() {
           
           //clear screen 
           
-          tft.fillScreen(TFT_BLACK);
-          tft.setFreeFont(FSB24);
-          tft.drawString("Connecting...", xpos, ypos, GFXFF);
-          delay(1000);
-          tft.fillScreen(TFT_BLACK);
+          tft.fillScreen(TFT_NAVY);
+          //tft.setFreeFont(FSB24);
+          tft.drawString("Connecting...", xpos, ypos + 100, GFXFF);
+          delay(2000);
+          tft.fillScreen(TFT_NAVY);
           
           
           while(init_end == false){
             //clear screen 
             ypos = 20;
             //tft.fillScreen(TFT_BLACK);
-            tft.setFreeFont(FSB9);
-            tft.drawString("Available devices:", xpos, ypos, GFXFF);
+            
+            //tft.setFreeFont(FSB9);
+            //tft.setTextSize(2); 
+            tft.setFreeFont(FF10);
+            tft.drawString("Available devices:", xpos, ypos + 15, GFXFF);
             for(int i=0;i<devices_number;i++){
-              tft.drawString(String(i) + ": " + devices_ip[i], xpos, ypos + 20*(i+1), GFXFF);
+              tft.drawString(String(i) + ": " + devices_ip[i], xpos, ypos + 15 + 20*(i+1), GFXFF);
             }
            
-            tft.setFreeFont(FSB9);
-            tft.drawString("Select device and press", xpos, ypos + 20*(devices_number+3), GFXFF);
+            //tft.setFreeFont(FSB9);
+            tft.drawString("Press Encoder", xpos, 15+ ypos + 15*(devices_number+3), GFXFF);
+            tft.drawString("to continue", xpos, 15+ ypos + 15*(devices_number+3) + 20, GFXFF);
             
             //tft.drawString("111", xpos, ypos + 14*(devices_number+2), GFXFF);
 
+            tft.setFreeFont(FF18);
                 encoderValue = encoder.getCount(); //encoder position absolute
                 /*
                 USE_SERIAL.print("encoderValue ");
@@ -603,12 +682,13 @@ void loop() {
                   
                   //display in tft
                   //tft.fillScreen(TFT_BLACK);
-                  tft.setFreeFont(FSB18);
-                  tft.drawString(String(selected_device), xpos, ypos + 20*(devices_number+6), GFXFF);
+                  
+                  //tft.setFreeFont(FSB18);
+                  //tft.drawString(String(selected_device), xpos, ypos + 20*(devices_number+6), GFXFF);
                   
                   
                 }
-                delay(500);
+                delay(300);
             
           } //end while 
 
@@ -619,16 +699,21 @@ void loop() {
           
           //retrieve fader value at the beginning
           USE_SERIAL.println(" ");
-          USE_SERIAL.print("Retrieving fader values from interface... ");
+          USE_SERIAL.print("Retrieving trim values from interface... ");
           
-          faderVolume = getFaderValue();  //uses the ip of selected device
-          //dbVolume = (int((20*log10(faderVolume))*10))/10;  //transform to dB
-          dbVolume = 20*log10(faderVolume);  //transform to dB
+          //faderVolume = getFaderValue();  //uses the ip of selected device
+
+       //-.>   //23 AGOSTO 2022
+          faderVolume = getTrimValue();  //uses the ip of selected device--> returns value in dB already
+                           
+          //dbVolume = 20*log10(faderVolume);  //transform to dB
           
           //display in tft
-          tft.fillScreen(TFT_BLACK);
-          tft.setFreeFont(FSB24);
-          tft.drawString(String(dbVolume), xpos, 100, GFXFF);
+          tft.fillScreen(TFT_NAVY);
+          //tft.setFreeFont(FSB24);
+          tft.setTextSize(3); 
+          tft.setFreeFont(FF18);
+          tft.drawString(String(faderVolume), xpos - 50, 100, GFXFF);  //tft.drawString(String(dbVolume), xpos, 100, GFXFF);
           tft.drawString("dB", xpos + 100, 100, GFXFF);
                                   
           firstConnection = false;
@@ -636,7 +721,7 @@ void loop() {
     
           //initial encoder value is 0
           
-        } 
+        } //end of if(first connection)
         else {
                 //encoder reading
                 
@@ -656,46 +741,51 @@ void loop() {
                   //USE_SERIAL.print("enc increment ");
                   //USE_SERIAL.println(encoderIncrement);
                   
-                  incVol = 0.01 *  encoderIncrement/4;
+                  incVol =  0.5 * encoderIncrement/4;
                   //USE_SERIAL.print("inc vol ");
                   //USE_SERIAL.println(incVol);
-                  faderVolume = faderVolume + incVol;
+                  faderVolume = faderVolume + incVol*2;
+                  if(faderVolume > 0) faderVolume = 0.0;
+                  if(faderVolume < -24) faderVolume = -24.0;
                   
+                  //USE_SERIAL.print("faderVolume ");
+                  //USE_SERIAL.println(faderVolume);
                   encoderValue_past = encoderValue;
 
 
                   //quiza crear aqui los doc de json y no en cada loop
-                  doc_mul["0/matrix/fader"] = faderVolume;
-                  doc_mul["1/matrix/fader"] = faderVolume;
-                  doc_mul["2/matrix/fader"] = faderVolume;
-                  doc_mul["3/matrix/fader"] = faderVolume;
-                  doc_mul["4/matrix/fader"] = faderVolume;
-                  doc_mul["5/matrix/fader"] = faderVolume;
-                  doc_mul["6/matrix/fader"] = faderVolume;
-                  doc_mul["7/matrix/fader"] = faderVolume;
-                  doc_mul["8/matrix/fader"] = faderVolume;
-                  doc_mul["9/matrix/fader"] = faderVolume;
-                  doc_mul["10/matrix/fader"] = faderVolume;
-                  doc_mul["11/matrix/fader"] = faderVolume;
-                  doc_mul["12/matrix/fader"] = faderVolume;
-                  doc_mul["13/matrix/fader"] = faderVolume;
-                  doc_mul["14/matrix/fader"] = faderVolume;
-                  doc_mul["15/matrix/fader"] = faderVolume;
-                  doc_mul["16/matrix/fader"] = faderVolume;
-                  doc_mul["17/matrix/fader"] = faderVolume;
-                  doc_mul["18/matrix/fader"] = faderVolume;
-                  doc_mul["19/matrix/fader"] = faderVolume;
-                  doc_mul["20/matrix/fader"] = faderVolume;
-                  doc_mul["21/matrix/fader"] = faderVolume;
-                  doc_mul["22/matrix/fader"] = faderVolume;
-                  doc_mul["23/matrix/fader"] = faderVolume;
-                  doc_mul["24/matrix/fader"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/0/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/1/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/2/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/3/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/4/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/5/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/6/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/7/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/8/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/9/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/10/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/11/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/12/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/13/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/14/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/15/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/16/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/17/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/18/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/19/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/20/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/21/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/22/trim"] = faderVolume;
+                  doc_mul["ext/obank/0/ch/23/trim"] = faderVolume;
+                  
                   
                   //postDataToServerJSON(faderVolume);  //one fader
                   postDataToServerJSONmultiple(faderVolume); //two faders  //WHICH FADERS?
 
                   //dbVolume = (int((20*log10(faderVolume))*10))/10;  //transform to dB
-                  dbVolume = 20*log10(faderVolume);  //transform to dB
+                  //dbVolume = 20*log10(faderVolume);  //transform to dB
+                  
                   /*
                   USE_SERIAL.println(" ");
                   USE_SERIAL.print("faderdB ");
@@ -704,10 +794,12 @@ void loop() {
                 */
                   
                   //display in tft
-                  tft.fillScreen(TFT_BLACK);
-                  tft.setFreeFont(FSB24);
+                  tft.setTextSize(3); 
+                  tft.fillScreen(TFT_NAVY);
+                  tft.setFreeFont(FF18);
+                  //tft.setFreeFont(FSB24);
                   //tft.drawString(String(faderVolume), xpos, ypos, GFXFF);
-                  tft.drawString(String(dbVolume), xpos, 100, GFXFF);
+                  tft.drawString(String(faderVolume), xpos - 50, 100, GFXFF);
                   tft.drawString("dB", xpos + 100, 100, GFXFF);
                   //ypos += tft.fontHeight(GFXFF);
                   delay(250);
