@@ -22,9 +22,12 @@ The principle to GET and POST with MOTU AVB interfaces is rather simple with cUR
 
 * set mixer fader 1 and fader 2 at the same time: ``` curl --data 'json={"0/matrix/fader":"0.2","1/matrix/fader":"0.1"}' http://192.168.0.5/datastore/mix/chan/ ```
 
-We used a ESP32 with ethernet by [Olimex](https://www.olimex.com/Products/IoT/ESP32/ESP32-GATEWAY/open-source-hardware) and a [SPI TFT display](https://www.amazon.de/gp/product/B07YTWRZGR/ref=ppx_yo_dt_b_asin_title_o06_s01?ie=UTF8&psc=1) that we connected to it follows:
+# Hardware
 
+We used a ESP32 with ethernet by [Olimex](https://www.olimex.com/Products/IoT/ESP32/ESP32-GATEWAY/open-source-hardware) and a [SPI TFT display](https://www.amazon.de/gp/product/B07YTWRZGR/ref=ppx_yo_dt_b_asin_title_o06_s01?ie=UTF8&psc=1) that we connected to it follows:
 ![alt text](https://github.com/ultranoise/MOTU_AVB_ESP32_Controller/blob/main/schematic.jpg)
+
+# Code
 
 * The following code can be used to read the datastore:
 
