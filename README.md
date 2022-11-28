@@ -1,6 +1,8 @@
 # MOTU_AVB_ESP32_Controller
 Building a simple controller with a ESP32 for the MOTU AVB audio interfaces
-![alt text](https://github.com/ultranoise/MOTU_AVB_ESP32_Controller/blob/main/IMG_0427.jpg | width=300)
+<div style="width: 60%; height: 60%">
+![alt text](https://github.com/ultranoise/MOTU_AVB_ESP32_Controller/blob/main/IMG_0427.jpg)
+</div>
 This should have been a simple project but MOTU AVB interfaces have a particular method for receiving HTTP POST messages. After all I decided to share and document here some code for other interested people. 
 
 MOTU API Reference: 
