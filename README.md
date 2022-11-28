@@ -26,6 +26,7 @@ The principle to GET and POST with MOTU AVB interfaces is rather simple with cUR
 
 We used a ESP32 with ethernet by [Olimex](https://www.olimex.com/Products/IoT/ESP32/ESP32-GATEWAY/open-source-hardware) and a [SPI TFT display](https://www.amazon.de/gp/product/B07YTWRZGR/ref=ppx_yo_dt_b_asin_title_o06_s01?ie=UTF8&psc=1) that we connected to it follows:
 ![alt text](https://github.com/ultranoise/MOTU_AVB_ESP32_Controller/blob/main/schematic.jpg)
+Please note that a WLAN version of this code could be easily implemented with the same board (call wlan functions instead of ethernet). 
 
 # Code
 
