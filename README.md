@@ -1,5 +1,5 @@
 # MOTU_AVB_ESP32_Controller
-Building a simple volume controller with a ESP32 for MOTU AVB audio interfaces.
+Building a simple volume controller with a ESP32 for MOTU AVB audio interfaces. Part of the [Ottosonics](https://tamlab.kunstuni-linz.at/projects/ottosonics/)project . 
 
 <img src="https://github.com/ultranoise/MOTU_AVB_ESP32_Controller/blob/main/IMG_0427.jpg" width=60% height=60%>
 
