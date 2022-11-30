@@ -3,12 +3,9 @@ Building a simple volume controller with a ESP32 for MOTU AVB audio interfaces.
 
 <img src="https://github.com/ultranoise/MOTU_AVB_ESP32_Controller/blob/main/IMG_0427.jpg" width=60% height=60%>
 
-This should have been a simple project but MOTU AVB interfaces have a particular method for receiving HTTP POST messages. After all I decided to share and document here some code for other interested people. 
-
-MOTU API Reference: 
+MOTU AVB interfaces have a particular method for receiving HTTP POST messages. First read the MOTU API Reference: 
 
 https://cdn-data.motu.com/downloads/audio/AVB/docs/OSC%20Quick%20Reference.pdf
-
 
 The principle to GET and POST with MOTU AVB interfaces is rather simple with cURL:
 
