@@ -195,7 +195,7 @@ ETH Connected
 
 ```
  
-So clearly there is a difference in how headers or formatting are set. I used the online service httpbin.org to debug the messages. Basically httpbin.org replies with a copy of what you have sent.  
+So clearly there is a difference in how headers or formatting are set. I used the online service httpbin.org to debug the messages. Basically httpbin.org replied me a copy of what we have to send.  
   
 This is what you get if you use the cURL command which works with the MOTU:
 
