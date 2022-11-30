@@ -282,13 +282,13 @@ We get
 }
 ```
 
-Which looks better, but to accommondate the format that the MOTU interface expects ( json={} ) this is the final code which actually works:
+Which looks better, but to accommondate the format that the MOTU interface expects ( json={} ) this is the final code which finally works:
 
 ```
 void postDataToServerTwo() {
     HTTPClient http;
 
-    http.begin("http://192.168.0.5/datastore/mix/chan/0/matrix/fader");  //curlコマンドと同じURi『http://192.168.0.100/datastore/ext/obank/2/ch/0/name 』
+    http.begin("http://192.168.0.5/datastore/mix/chan/0/matrix/fader"); 
     
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
     
