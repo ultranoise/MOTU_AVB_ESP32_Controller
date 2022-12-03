@@ -29,7 +29,9 @@ Please note that a WLAN version of this code could be easily implemented with th
 
 # Code
 
-* The following code can be used to read the datastore:
+* If you want to download our solution please go to the source folder of this repository
+
+* With our ESP32, the following code can be used to read the datastore:
 
 ```
 #define ETH_CLK_MODE ETH_CLOCK_GPIO17_OUT
